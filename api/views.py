@@ -4,14 +4,28 @@ from rest_framework.decorators import api_view, APIView
 from rest_framework.response import Response
 from .serializers import NewsSerializer
 from blog.models import News
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 # Create your views here.
 
+
+class API_LIST_PAGE(ListCreateAPIView):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+
 # function Base view
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 def api_list_page(request):
-    news = News.objects.all()
-    serializer = NewsSerializer(news, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == "GET":
+        news = News.objects.all()
+        serializer = NewsSerializer(news, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == "POST":
+        serializer = NewsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
 
 # class based view
 class Api_list_page(APIView):
@@ -20,12 +34,34 @@ class Api_list_page(APIView):
         serializer = NewsSerializer(news, many=True)
         return Response(serializer.data)
 
+    def post(self, render):
+        serializer = NewsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(["GET"])
+
+@api_view(["GET", "PUT"])
 def api_detail_page(request, slug):
-    news = News.objects.get(slug=slug)
-    serializer = NewsSerializer(news)
-    return Response((serializer.data))
+    try:
+        news = News.objects.get(slug=slug)
+    except News.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == "GET":
+        news = News.objects.get(slug=slug)
+        serializer = NewsSerializer(news)
+        return Response((serializer.data))
+
+    elif request.method == "PUT":
+        serializer = NewsSerializer(news, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUESt)
+
+    elif request.method == "DELETE":
+        news.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class Api_detail_page(APIView):
