@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'app.apps.AppConfig',
     'api.apps.ApiConfig',
     'rest_framework',
+    'users.apps.UsersConfig',
     'crispy_forms',
 ]
 

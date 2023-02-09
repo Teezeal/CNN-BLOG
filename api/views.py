@@ -12,6 +12,11 @@ class API_LIST_PAGE(ListCreateAPIView):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
 
+class API_DETAIL_PAGE(RetrieveUpdateDestroyAPIView):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+    lookup_field = "slug"
+
 # function Base view
 @api_view(["GET", "POST"])
 def api_list_page(request):
